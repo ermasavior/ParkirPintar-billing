@@ -17,20 +17,6 @@ const (
 	testInvoiceID = "110e8400-e29b-41d4-a716-446655440001"
 )
 
-// fakeMsg wraps nats.Msg so we can track which ack method was called
-type fakeMsg struct {
-	data      []byte
-	acked     bool
-	nacked    bool
-	termed    bool
-	nakDelay  bool
-}
-
-func (f *fakeMsg) toNatsMsg() *nats.Msg {
-	msg := &nats.Msg{Data: f.data}
-	return msg
-}
-
 // newConsumer creates a ParkingPaymentConsumer with a mock usecase (no real NATS needed)
 func newConsumer(uc *mockbilling.MockBillingUsecase) *ParkingPaymentConsumer {
 	return &ParkingPaymentConsumer{uc: uc}

@@ -98,7 +98,7 @@ func TestCreatePayment_CircuitOpen_DoesNotCallDownstream(t *testing.T) {
 
 	// Open the circuit with 5 failures
 	for i := 0; i < 5; i++ {
-		c.CreatePayment(context.Background(), testIdemKey, testRefID, testDriverID,
+		_, _ = c.CreatePayment(context.Background(), testIdemKey, testRefID, testDriverID,
 			paymentpb.PaymentType_PAYMENT_TYPE_PARKING_FEE, 15000)
 	}
 

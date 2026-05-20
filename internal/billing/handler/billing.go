@@ -43,12 +43,7 @@ func (s *BillingServer) CalculateAndCreateInvoice(ctx context.Context, req *pb.C
 	})
 	if appErr != nil {
 		logger.Error(ctx, "CalculateAndCreateInvoice failed", slog.String("error", appErr.Error()))
-		switch appErr.ErrorCode {
-		case "db_error":
-			return nil, status.Error(codes.Internal, appErr.Message)
-		default:
-			return nil, status.Error(codes.Internal, appErr.Message)
-		}
+		return nil, status.Error(codes.Internal, appErr.Message)
 	}
 
 	return &pb.CreateInvoiceResponse{

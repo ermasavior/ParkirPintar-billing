@@ -16,7 +16,7 @@ func TestCalculate_OneHour(t *testing.T) {
 
 	assert.Equal(t, int64(5000), res.ParkingFeeIDR)
 	assert.Equal(t, int64(0), res.OvernightFeeIDR)
-	assert.Equal(t, int64(10000), res.TotalIDR) // 5000 booking + 5000 parking
+	assert.Equal(t, int64(5000), res.TotalIDR) // parking only — booking fee charged separately
 	assert.Equal(t, 1, res.DurationHours)
 	assert.False(t, res.IsOvernight)
 }
@@ -25,7 +25,7 @@ func TestCalculate_TwoHours(t *testing.T) {
 	res := Calculate(ts(10, 0), ts(12, 0))
 
 	assert.Equal(t, int64(10000), res.ParkingFeeIDR)
-	assert.Equal(t, int64(15000), res.TotalIDR) // 5000 + 10000 + 0
+	assert.Equal(t, int64(10000), res.TotalIDR) // 10000 parking + 0 overnight
 	assert.Equal(t, 2, res.DurationHours)
 }
 
@@ -47,8 +47,8 @@ func TestCalculate_Overnight(t *testing.T) {
 	assert.True(t, res.IsOvernight)
 	assert.Equal(t, int64(20000), res.OvernightFeeIDR)
 	assert.Equal(t, int64(2), int64(res.DurationHours))
-	// total = 5000 booking + 10000 parking + 20000 overnight
-	assert.Equal(t, int64(35000), res.TotalIDR)
+	// total = 10000 parking + 20000 overnight (no booking fee)
+	assert.Equal(t, int64(30000), res.TotalIDR)
 }
 
 func TestCalculate_SameDay_NoOvernight(t *testing.T) {
@@ -83,11 +83,11 @@ func TestCalculate_NegativeDuration_MinimumOneHour(t *testing.T) {
 	assert.Equal(t, int64(5000), res.ParkingFeeIDR)
 }
 
-func TestCalculate_BookingFeeAlwaysIncluded(t *testing.T) {
+func TestCalculate_TotalIsParkingPlusOvernight(t *testing.T) {
 	res := Calculate(ts(10, 0), ts(11, 0))
 
-	assert.Equal(t, BookingFeeIDR, int64(5000))
-	assert.Equal(t, res.TotalIDR, BookingFeeIDR+res.ParkingFeeIDR+res.OvernightFeeIDR)
+	// Total must equal parking + overnight only — booking fee is separate
+	assert.Equal(t, res.TotalIDR, res.ParkingFeeIDR+res.OvernightFeeIDR)
 }
 
 func TestCalculate_MultiNight_ThreeMidnightsCrossed(t *testing.T) {
@@ -101,6 +101,6 @@ func TestCalculate_MultiNight_ThreeMidnightsCrossed(t *testing.T) {
 	assert.Equal(t, 72, res.DurationHours)
 	assert.Equal(t, int64(360000), res.ParkingFeeIDR)  // 72 * 5000
 	assert.Equal(t, int64(60000), res.OvernightFeeIDR) // 3 * 20000
-	// total = 5000 booking + 360000 parking + 60000 overnight
-	assert.Equal(t, int64(425000), res.TotalIDR)
+	// total = 360000 parking + 60000 overnight (no booking fee)
+	assert.Equal(t, int64(420000), res.TotalIDR)
 }

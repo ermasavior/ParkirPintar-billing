@@ -146,7 +146,7 @@ func TestCalculateAndCreateInvoice_Success(t *testing.T) {
 			BookingFeeIDR:   5000,
 			ParkingFeeIDR:   10000,
 			OvernightFeeIDR: 0,
-			TotalIDR:        15000,
+			TotalIDR:        10000,
 			QRCodeURL:       "https://qr.example.com",
 		}, nil)
 
@@ -156,7 +156,7 @@ func TestCalculateAndCreateInvoice_Success(t *testing.T) {
 	assert.Equal(t, validInvoiceID, res.InvoiceId)
 	assert.Equal(t, int64(5000), res.BookingFeeIdr)
 	assert.Equal(t, int64(10000), res.ParkingFeeIdr)
-	assert.Equal(t, int64(15000), res.TotalIdr)
+	assert.Equal(t, int64(10000), res.TotalIdr)
 	assert.Equal(t, "https://qr.example.com", res.QrCodeUrl)
 }
 
@@ -221,7 +221,7 @@ func TestGetInvoice_Success(t *testing.T) {
 			BookingFeeIDR:   5000,
 			ParkingFeeIDR:   10000,
 			OvernightFeeIDR: 0,
-			TotalIDR:        15000,
+			TotalIDR:        10000,
 			CreatedAt:       now,
 		}, nil)
 
@@ -230,7 +230,7 @@ func TestGetInvoice_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, validInvoiceID, res.InvoiceId)
 	assert.Equal(t, pb.InvoiceStatus_INVOICE_STATUS_PENDING_PAYMENT, res.Status)
-	assert.Equal(t, int64(15000), res.TotalIdr)
+	assert.Equal(t, int64(10000), res.TotalIdr)
 	assert.NotNil(t, res.CreatedAt)
 }
 

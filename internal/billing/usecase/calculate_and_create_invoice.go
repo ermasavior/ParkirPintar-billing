@@ -37,13 +37,14 @@ func (u *BillingUsecase) CalculateAndCreateInvoice(ctx context.Context, req mode
 	// Calculate fees
 	result := pricing.Calculate(req.CheckedInAt, req.CheckedOutAt)
 
+	// The webhook callback uses reference_id to look up the invoice to update.
+	invoiceID := uuid.New().String()
+
 	// Call Payment Service to create QRIS parking fee payment
-	// Generate a UUID for the payment idempotency key — tied to this invoice's
-	// idempotency key so replaying the same invoice request reuses the same payment
 	paymentIdemKey := uuid.NewSHA1(uuid.NameSpaceURL, []byte("parking:"+req.IdempotencyKey)).String()
 	paymentResult, appErr := u.paymentClient.CreatePayment(ctx,
 		paymentIdemKey,
-		req.SessionID, // reference_id = session_id for parking fee
+		invoiceID, // reference_id = invoice_id
 		req.DriverID,
 		paymentpb.PaymentType_PAYMENT_TYPE_PARKING_FEE,
 		result.TotalIDR,
@@ -62,6 +63,7 @@ func (u *BillingUsecase) CalculateAndCreateInvoice(ctx context.Context, req mode
 	)
 
 	invoice := &model.Invoice{
+		ID:              invoiceID,
 		IdempotencyKey:  req.IdempotencyKey,
 		SessionID:       req.SessionID,
 		ReservationID:   req.ReservationID,

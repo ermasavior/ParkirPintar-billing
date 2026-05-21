@@ -27,7 +27,10 @@ type Result struct {
 //  2. hours = ceil(duration.Minutes() / 60)  — each started hour counts
 //  3. parking_fee = hours * 5000
 //  4. overnight_fee = 20000 * number of midnights crossed
-//  5. total = booking_fee(5000) + parking_fee + overnight_fee
+//  5. total = parking_fee + overnight_fee
+//
+// Note: booking_fee is charged separately at reservation time and is NOT
+// included in the invoice total calculated here.
 func Calculate(checkedInAt, checkedOutAt time.Time) Result {
 	duration := checkedOutAt.Sub(checkedInAt)
 	minutes := duration.Minutes()
@@ -46,7 +49,7 @@ func Calculate(checkedInAt, checkedOutAt time.Time) Result {
 	overnightFee := int64(nights) * OvernightFeeIDR
 	isOvernight := nights > 0
 
-	total := BookingFeeIDR + parkingFee + overnightFee
+	total := parkingFee + overnightFee
 
 	return Result{
 		ParkingFeeIDR:   parkingFee,

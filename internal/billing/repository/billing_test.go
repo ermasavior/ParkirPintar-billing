@@ -35,7 +35,7 @@ func invoiceRow() *pgxmock.Rows {
 	}).AddRow(
 		testInvoiceID, testIdemKey, testSessionID, testReservationID,
 		model.InvoiceStatusPendingPayment,
-		int64(5000), int64(10000), int64(0), int64(15000),
+		int64(5000), int64(10000), int64(0), int64(10000),
 		"https://qr.example.com", time.Now(),
 	)
 }
@@ -54,7 +54,7 @@ func TestGetByIdempotencyKey_Found(t *testing.T) {
 	require.Nil(t, appErr)
 	require.NotNil(t, inv)
 	assert.Equal(t, testInvoiceID, inv.ID)
-	assert.Equal(t, int64(15000), inv.TotalIDR)
+	assert.Equal(t, int64(10000), inv.TotalIDR)
 	assert.NoError(t, db.ExpectationsWereMet())
 }
 
@@ -94,17 +94,19 @@ func TestCreateInvoice_Success(t *testing.T) {
 	now := time.Now()
 	db.ExpectQuery(`INSERT INTO invoices`).
 		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-		WillReturnRows(pgxmock.NewRows([]string{"id", "created_at"}).AddRow(testInvoiceID, now))
+			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+		WillReturnRows(pgxmock.NewRows([]string{"created_at"}).AddRow(now))
 
 	inv, appErr := repo.CreateInvoice(context.Background(), &model.Invoice{
+		ID:              testInvoiceID,
 		IdempotencyKey:  testIdemKey,
 		SessionID:       testSessionID,
 		ReservationID:   testReservationID,
 		BookingFeeIDR:   5000,
 		ParkingFeeIDR:   10000,
 		OvernightFeeIDR: 0,
-		TotalIDR:        15000,
+		TotalIDR:        10000,
 		QRCodeURL:       "https://qr.example.com",
 	})
 
@@ -119,10 +121,12 @@ func TestCreateInvoice_DBError(t *testing.T) {
 
 	db.ExpectQuery(`INSERT INTO invoices`).
 		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+			pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 		WillReturnError(fmt.Errorf("insert failed"))
 
 	_, appErr := repo.CreateInvoice(context.Background(), &model.Invoice{
+		ID:             testInvoiceID,
 		IdempotencyKey: testIdemKey,
 		SessionID:      testSessionID,
 		ReservationID:  testReservationID,

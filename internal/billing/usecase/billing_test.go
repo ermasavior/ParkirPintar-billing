@@ -69,7 +69,7 @@ func TestCalculateAndCreateInvoice_IdempotencyReplay(t *testing.T) {
 		BookingFeeIDR:   5000,
 		ParkingFeeIDR:   10000,
 		OvernightFeeIDR: 0,
-		TotalIDR:        15000,
+		TotalIDR:        10000,
 		QRCodeURL:       "https://qr.example.com",
 	}
 
@@ -80,7 +80,7 @@ func TestCalculateAndCreateInvoice_IdempotencyReplay(t *testing.T) {
 
 	require.Nil(t, appErr)
 	assert.Equal(t, testInvoiceID, res.InvoiceID)
-	assert.Equal(t, int64(15000), res.TotalIDR)
+	assert.Equal(t, int64(10000), res.TotalIDR)
 	assert.Equal(t, "https://qr.example.com", res.QRCodeURL)
 }
 
@@ -108,7 +108,7 @@ func TestCalculateAndCreateInvoice_Success(t *testing.T) {
 		BookingFeeIDR:   5000,
 		ParkingFeeIDR:   10000,
 		OvernightFeeIDR: 0,
-		TotalIDR:        15000,
+		TotalIDR:        10000,
 		QRCodeURL:       "https://qr.example.com/stub",
 		CreatedAt:       now,
 		Status:          model.InvoiceStatusPendingPayment,
@@ -153,7 +153,7 @@ func TestCalculateAndCreateInvoice_OvernightFee(t *testing.T) {
 		BookingFeeIDR:   5000,
 		ParkingFeeIDR:   10000,
 		OvernightFeeIDR: 20000,
-		TotalIDR:        35000,
+		TotalIDR:        30000,
 		QRCodeURL:       "https://qr.example.com/stub",
 		Status:          model.InvoiceStatusPendingPayment,
 	}
@@ -173,7 +173,7 @@ func TestCalculateAndCreateInvoice_OvernightFee(t *testing.T) {
 
 	require.Nil(t, appErr)
 	assert.Equal(t, int64(20000), res.OvernightFeeIDR)
-	assert.Equal(t, int64(35000), res.TotalIDR)
+	assert.Equal(t, int64(30000), res.TotalIDR)
 }
 
 // ── CalculateAndCreateInvoice — payment service errors ───────────────────────
@@ -227,7 +227,7 @@ func TestGetInvoice_Success(t *testing.T) {
 		BookingFeeIDR:   5000,
 		ParkingFeeIDR:   10000,
 		OvernightFeeIDR: 0,
-		TotalIDR:        15000,
+		TotalIDR:        10000,
 		CreatedAt:       time.Now(),
 	}, nil)
 
@@ -236,7 +236,7 @@ func TestGetInvoice_Success(t *testing.T) {
 	require.Nil(t, appErr)
 	assert.Equal(t, testInvoiceID, res.InvoiceID)
 	assert.Equal(t, model.InvoiceStatusPendingPayment, res.Status)
-	assert.Equal(t, int64(15000), res.TotalIDR)
+	assert.Equal(t, int64(10000), res.TotalIDR)
 }
 
 func TestGetInvoice_NotFound(t *testing.T) {

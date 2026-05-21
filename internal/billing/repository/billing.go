@@ -43,12 +43,13 @@ func (r *BillingRepository) GetByIdempotencyKey(ctx context.Context, key string)
 
 func (r *BillingRepository) CreateInvoice(ctx context.Context, invoice *model.Invoice) (*model.Invoice, *apperror.AppError) {
 	query := `INSERT INTO invoices
-	  (idempotency_key, session_id, reservation_id, status,
+	  (id, idempotency_key, session_id, reservation_id, status,
 	   booking_fee_idr, parking_fee_idr, overnight_fee_idr, total_idr, qr_code_url)
-	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-	  RETURNING id, created_at`
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	  RETURNING created_at`
 
 	err := r.db.QueryRow(ctx, query,
+		invoice.ID,
 		invoice.IdempotencyKey,
 		invoice.SessionID,
 		invoice.ReservationID,
@@ -58,7 +59,7 @@ func (r *BillingRepository) CreateInvoice(ctx context.Context, invoice *model.In
 		invoice.OvernightFeeIDR,
 		invoice.TotalIDR,
 		invoice.QRCodeURL,
-	).Scan(&invoice.ID, &invoice.CreatedAt)
+	).Scan(&invoice.CreatedAt)
 	if err != nil {
 		logger.Error(ctx, "CreateInvoice failed", slog.String("error", err.Error()))
 		return nil, apperror.New("db_error", "failed to create invoice")
